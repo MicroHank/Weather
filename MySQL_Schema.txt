@@ -1,0 +1,52 @@
+CREATE DATABASE practice CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ;
+
+CREATE TABLE `user` (
+    `user_id` INT(11) NOT NULL auto_increment,
+    `account` VARCHAR(100)  NOT NULL,
+    `password` VARCHAR(255)  NOT NULL,
+    `user_name` VARCHAR(100) NOT NULL,
+    `supervisor_id` INT(11) NOT NULL,
+    PRIMARY KEY(`user_id`),
+    UNIQUE(`account`)
+) ENGINE=InnoDB CHARACTER SET=utf8 ;
+
+CREATE TABLE `user_information` (
+    `user_id` INT(11) NOT NULL,
+    `email` VARCHAR(100) NOT NULL,
+    `url` VARCHAR(255) NOT NULL,
+    PRIMARY KEY(`user_id`)
+) ENGINE=InnoDB CHARACTER SET=utf8 ;
+
+CREATE TABLE `user_group` (
+    `user_id` INT(11) NOT NULL,
+    `group_id` INT(11) NOT NULL,
+    PRIMARY KEY(`user_id`, `group_id`)
+) ENGINE=InnoDB CHARACTER SET=utf8 ;
+
+CREATE TABLE `group` (
+    `group_id` INT(11) NOT NULL auto_increment,
+    `group_name` VARCHAR(100)  NOT NULL,
+    `parent_id` INT(11) DEFAULT 0,
+    PRIMARY KEY(`group_id`),
+    UNIQUE(`group_name`)
+) ENGINE=InnoDB CHARACTER SET=utf8 ;
+
+CREATE TABLE `station` (
+    `station_id` VARCHAR(10) NOT NULL,
+    `station_name` VARCHAR(30) NOT NULL,
+    `lat` FLOAT,
+    `lon` FLOAT,
+    `county_name` VARCHAR(10) NOT NULL,
+    `address` VARCHAR(200) NOT NULL,
+    `type` CHAR(1) NOT NULL,
+    PRIMARY KEY(`station_id`)
+) ENGINE=InnoDB CHARACTER SET=utf8 ;
+
+CREATE TABLE `station_rain` (
+    `station_id` VARCHAR(10) NOT NULL,
+    `date` DATE NOT NULL,
+    `value` FLOAT NOT NULL,
+    PRIMARY KEY(`station_id`, `date`)
+) ENGINE=InnoDB CHARACTER SET=utf8 ;
+
+SELECT station_id, DATE_FORMAT(date, '%Y-%m') AS month, sum(value) AS total FROM station_rain WHERE date BETWEEN '2020-01-01' AND '2020-07-31' GROUP BY station_id, DATE_FORMAT(date, '%Y-%m')  ;
