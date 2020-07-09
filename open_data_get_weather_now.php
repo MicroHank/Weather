@@ -1,53 +1,98 @@
-<?php
-	include "vendor/autoload.php" ;
+<html>
+	<head>
+		<title>天氣狀況</title>
+		<meta charset="utf-8">
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+		<script src="Highcharts/code/highcharts.js"></script>
+	</head>
+	<body>
+		<div id="container"></div>
 
-	$curlobj = curl_init() ;
-	curl_setopt($curlobj, CURLOPT_RETURNTRANSFER, true) ;
-	curl_setopt($curlobj, CURLOPT_SSL_VERIFYPEER, false) ;
-	curl_setopt($curlobj, CURLOPT_SSL_VERIFYHOST, false) ;
+		<script type="text/javascript">
+			$.ajax({
+				type :"GET",
+				url  : "api/get_weather_now.php",
+                data : {
 
-	$field = array(
-		"Authorization" => AUTHORIZATION,
-		"locationName" => "臺中市",
-	) ;
+                },
+                dataType: "json",
+                success : function(data) {
+                	if (data["status"] == 1) {
+                		draw_chart(data) ;
+                	}
+                	else {
+                		console.log(data["msg"]) ;
+                	}
+                	
+                }
+            }) ;
 
-	curl_setopt($curlobj, CURLOPT_URL, API_WEATHER_36_HOURS."?".http_build_query($field)) ;
-	$json = curl_exec($curlobj) ;
+			function draw_chart(data) {
+				var city_name = data["x"] ;
+				var y_min_t = data["y1"] ;
+				var y_max_t = data["y2"] ;
+				var start_t = data["st"] ;
+				var end_t = data["et"] ;
+				
+				Highcharts.chart('container', {
+					chart: {
+				        type: 'line'
+				    },
+				    title: {
+				        text: '時段: '+start_t+" ~ "+end_t
+				    },
+				    subtitle: {
+				        text: '資料來源：中央氣象局開放資料平臺'
+				    },
+				 	xAxis: {
+				        categories: city_name
+				    },
+				    yAxis: {
+				    	min: 0,
+				    	//max: 45,
+				        title: {
+				            text: '氣溫'
+				        }
+				    },
+				    legend: {
+				        layout: 'vertical',
+				        align: 'right',
+				        verticalAlign: 'middle'
+				    },
+				    plotOptions: {
+				         line: {
+				            dataLabels: {
+				                enabled: true
+				            },
+				            enableMouseTracking: false
+				        }
+				    },
 
-	if ($json) {
-		$weather = json_decode($json, true) ;
+				    series: [{
+				        name: '最低溫',
+				        data: y_min_t
+				    },{
+				        name: '最高溫',
+				        data: y_max_t
+				    }],
+				    responsive: {
+				        rules: [{
+				            condition: {
+				                maxWidth: 500
+				            },
+				            chartOptions: {
+				                legend: {
+				                    layout: 'horizontal',
+				                    align: 'center',
+				                    verticalAlign: 'bottom'
+				                }
+				            }
+				        }]
+				    }
 
-		$city = $weather["records"]["location"][0]["locationName"] ;
-
-		foreach ($weather["records"]["location"][0]["weatherElement"] as $obj) {
-			// 天氣狀況
-			if ($obj["elementName"] === "Wx") {
-				$wx = $obj["time"][0]["parameter"]["parameterName"] ; // 多雲
-				$start_time = $obj["time"][0]["startTime"] ; // 2020-07-08 12:00:00
-				$end_time = $obj["time"][0]["endTime"] ; // 2020-07-08 18:00:00
+				});
 			}
-
-			// 最低溫度
-			if ($obj["elementName"] === "MinT") {
-				$min_t = $obj["time"][0]["parameter"]["parameterName"].$obj["time"][0]["parameter"]["parameterUnit"] ; // 32C
-			}
-
-			// 最高溫度
-			if ($obj["elementName"] === "MaxT") {
-				$max_t = $obj["time"][0]["parameter"]["parameterName"].$obj["time"][0]["parameter"]["parameterUnit"] ; // 34C
-			}
-
-			// 體感
-			if ($obj["elementName"] === "CI") {
-				$ci = $obj["time"][0]["parameter"]["parameterName"] ; // 悶熱、舒適
-			}
-		}
-
-		echo "城市: $city <br />" ;
-		echo "開始時間: $start_time <br />" ;
-		echo "結束時間: $end_time <br />" ;
-		echo "氣候狀態: $wx <br />" ;
-		echo "溫度: $min_t ~ $max_t <br />" ;
-		echo "體感: $ci <br />" ;
-	}
+		</script>
+	</body>
+</html>
 

@@ -34,15 +34,6 @@
 	) ;
 	*/
 
-	// 觀測站: 氣候與雨量, 兩個資料結構相同
-	//define("API_WEATHER_SITE", "https://opendata.cwb.gov.tw/api/v1/rest/datastore/O-A0001-001") ;
-	//define("API_RAIN_SITE", "https://opendata.cwb.gov.tw/api/v1/rest/datastore/O-A0002-001") ;
-	/*
-	$field = array(
-		"Authorization" => AUTHORIZATION,
-	) ;
-	*/
-
 	ini_set("max_execution_time", 600) ;
 	ini_set("memory_limit","1024M") ;
 
